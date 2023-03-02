@@ -1,11 +1,11 @@
 Setup
-If you don’t have Node.js installed, install it from here (Node.js version >= 14.6.0 required)
+If you don’t have Node.js installed
 
 Clone this repository
 
 Navigate into the project directory
 
-$ cd openai-quickstart-node
+$ cd promptGenImg
 Install the requirements
 
 $ npm install
