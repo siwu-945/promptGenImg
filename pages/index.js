@@ -14,7 +14,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ animal: animalInput }),
+        body: JSON.stringify({ prompt: animalInput }),
       });
 
       const data = await response.json();
@@ -40,18 +40,19 @@ export default function Home() {
 
       <main className={styles.main}>
         <img src="/dog.png" className={styles.icon} />
-        <h3>Name my pet</h3>
+        <h3>Generate a picture with given input</h3>
         <form onSubmit={onSubmit}>
           <input
             type="text"
             name="animal"
-            placeholder="Enter an animal"
+            placeholder="Enter your prompt"
             value={animalInput}
             onChange={(e) => setAnimalInput(e.target.value)}
           />
-          <input type="submit" value="Generate names" />
+          <input type="submit" value="Generate a picture with given input" />
         </form>
-        <div className={styles.result}>{result}</div>
+        <div className={styles.result}>
+          {result && <img src={result} alt={animalInput}/>}</div>
       </main>
     </div>
   );

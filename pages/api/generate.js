@@ -1,7 +1,10 @@
 import { Configuration, OpenAIApi } from "openai";
+import {writeFileSync } from 'fs';
+
+
 
 const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY
 });
 const openai = new OpenAIApi(configuration);
 
@@ -15,23 +18,31 @@ export default async function (req, res) {
     return;
   }
 
-  const animal = req.body.animal || '';
-  if (animal.trim().length === 0) {
+  var user_prompt = req.body.prompt || '';
+  if (user_prompt.trim().length === 0) {
     res.status(400).json({
       error: {
-        message: "Please enter a valid animal",
+        message: "Please enter a valid prompt",
       }
     });
     return;
+  }else{
+    user_prompt = user_prompt.trim();
   }
 
   try {
-    const completion = await openai.createCompletion({
-      model: "text-davinci-003",
-      prompt: generatePrompt(animal),
-      temperature: 0.6,
+    const completion = await openai.createImage({
+      prompt: user_prompt,
+      n: 1,
+      size: '256x256',
     });
-    res.status(200).json({ result: completion.data.choices[0].text });
+    // console.log(completion.data.data[0].url);
+    const img_url = completion.data.data[0].url;
+    const response = await fetch(img_url);
+    const buffer = await response.arrayBuffer();
+    writeFileSync(`./public/${user_prompt}.png`, Buffer.from(buffer));
+
+    res.status(200).json({ result: completion.data.data[0].url});
   } catch(error) {
     // Consider adjusting the error handling logic for your use case
     if (error.response) {
@@ -46,17 +57,4 @@ export default async function (req, res) {
       });
     }
   }
-}
-
-function generatePrompt(animal) {
-  const capitalizedAnimal =
-    animal[0].toUpperCase() + animal.slice(1).toLowerCase();
-  return `Suggest three names for an animal that is a superhero.
-
-Animal: Cat
-Names: Captain Sharpclaw, Agent Fluffball, The Incredible Feline
-Animal: Dog
-Names: Ruff the Protector, Wonder Canine, Sir Barks-a-Lot
-Animal: ${capitalizedAnimal}
-Names:`;
 }
